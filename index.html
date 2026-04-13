@@ -40,7 +40,7 @@ body {
 .layout { display: flex; min-height: 100vh; }
 
 .sidebar {
-  width: 240px;
+  width: 260px;
   flex-shrink: 0;
   background: var(--ink);
   color: var(--paper);
@@ -151,8 +151,9 @@ body {
 /* ── Main ── */
 .main {
   flex: 1;
-  padding: 2rem 2.25rem;
-  max-width: 960px;
+  padding: 2rem 2.5rem;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .main-header {
@@ -218,8 +219,8 @@ body {
 /* Grid */
 .links-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
 }
 
 .link-card {
