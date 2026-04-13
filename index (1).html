@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LinkSaver</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #0f0e0c;
+  --paper: #f7f5f0;
+  --surface: #ffffff;
+  --muted: #888680;
+  --border: rgba(15,14,12,0.1);
+  --border-md: rgba(15,14,12,0.18);
+  --accent: #c8602a;
+  --accent-light: #fdf0e8;
+  --accent-dark: #9e4820;
+  --green: #2a7a4b;
+  --green-light: #eaf4ef;
+  --radius: 12px;
+  --radius-sm: 7px;
+  --serif: 'DM Serif Display', Georgia, serif;
+  --sans: 'DM Sans', sans-serif;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── Sidebar ── */
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Logo */
+.logo-area {
+  padding: 1.5rem 1.25rem 1.25rem;
+  border-bottom: 0.5px solid rgba(247,245,240,0.1);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.logo-mark {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.logo-text {}
+.logo-name {
+  font-family: var(--serif);
+  font-size: 17px;
+  color: var(--paper);
+  line-height: 1.1;
+  letter-spacing: -0.3px;
+}
+.logo-tagline { font-size: 10px; color: rgba(247,245,240,0.4); letter-spacing: 0.5px; text-transform: uppercase; margin-top: 1px; }
+
+/* Collections */
+.sidebar-section-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(247,245,240,0.35);
+  padding: 1.25rem 1.25rem 0.5rem;
+  font-weight: 500;
+}
+
+.collection-list { flex: 1; padding: 0 0.6rem; }
+
+.collection-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  color: rgba(247,245,240,0.65);
+  font-family: var(--sans);
+  font-size: 13.5px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.collection-btn:hover { background: rgba(247,245,240,0.08); color: var(--paper); }
+.collection-btn.active { background: rgba(200,96,42,0.25); color: var(--paper); }
+
+.col-icon {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  background: rgba(247,245,240,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.collection-btn.active .col-icon { background: var(--accent); }
+
+.col-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.col-count {
+  font-size: 11px;
+  color: rgba(247,245,240,0.3);
+  background: rgba(247,245,240,0.07);
+  border-radius: 20px;
+  padding: 1px 7px;
+  font-weight: 500;
+}
+.collection-btn.active .col-count { background: rgba(200,96,42,0.3); color: rgba(247,245,240,0.8); }
+
+.sidebar-footer { padding: 0.75rem 0.75rem 1.25rem; border-top: 0.5px solid rgba(247,245,240,0.08); margin-top: 0.5rem; }
+
+.btn-new-col {
+  display: flex; align-items: center; gap: 7px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0.5px dashed rgba(247,245,240,0.2);
+  background: none;
+  border-radius: var(--radius-sm);
+  color: rgba(247,245,240,0.4);
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-new-col:hover { color: var(--paper); border-color: rgba(247,245,240,0.5); }
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  padding: 2rem 2.25rem;
+  max-width: 960px;
+}
+
+.main-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;
+}
+
+.main-title-wrap { display: flex; align-items: center; gap: 10px; }
+
+.main-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: var(--accent-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+.main-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  letter-spacing: -0.3px;
+}
+
+.rename-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 12px; padding: 3px 6px;
+  border-radius: 5px; transition: all 0.12s;
+}
+.rename-btn:hover { background: var(--border); color: var(--ink); }
+
+.btn-add {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-add:hover { background: var(--accent-dark); }
+
+/* Search */
+.search-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface);
+  border: 0.5px solid var(--border-md);
+  border-radius: var(--radius-sm);
+  padding: 8px 13px;
+  margin-bottom: 1.5rem;
+}
+.search-wrap input {
+  border: none; background: none; outline: none;
+  font-family: var(--sans); font-size: 13.5px;
+  color: var(--ink); flex: 1;
+}
+.search-wrap input::placeholder { color: var(--muted); }
+.search-icon { color: var(--muted); font-size: 13px; }
+
+/* Grid */
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.link-card {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  transition: border-color 0.15s, transform 0.15s;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+.link-card:hover { border-color: var(--border-md); transform: translateY(-1px); }
+
+.card-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 7px; }
+
+.favicon-wrap {
+  width: 30px; height: 30px;
+  border-radius: 7px;
+  border: 0.5px solid var(--border);
+  flex-shrink: 0;
+  background: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; overflow: hidden;
+}
+.favicon-wrap img { width: 100%; height: 100%; object-fit: contain; border-radius: 6px; }
+
+.card-title { font-size: 13.5px; font-weight: 500; line-height: 1.35; flex: 1; word-break: break-word; }
+
+.card-domain {
+  font-size: 11.5px; color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  display: block; margin-bottom: 6px;
+}
+
+.card-note { font-size: 12.5px; color: var(--muted); line-height: 1.4; margin-bottom: 8px; }
+
+.card-footer {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: auto; padding-top: 8px;
+  border-top: 0.5px solid var(--border);
+}
+
+.icon-btn {
+  background: none; border: none; cursor: pointer;
+  padding: 4px 6px; border-radius: 5px;
+  color: var(--muted); font-size: 12px;
+  transition: all 0.12s;
+}
+.icon-btn:hover { background: var(--paper); color: var(--ink); }
+.icon-btn.del:hover { background: #fdf0ef; color: #c0392b; }
+
+.open-btn {
+  margin-left: auto;
+  font-size: 11.5px; font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 4px 9px;
+  background: var(--accent-light);
+  border-radius: 5px;
+  transition: opacity 0.12s;
+}
+.open-btn:hover { opacity: 0.75; }
+
+/* Empty */
+.empty {
+  grid-column: 1 / -1;
+  text-align: center; padding: 5rem 1rem;
+  color: var(--muted);
+}
+.empty-icon { font-size: 44px; margin-bottom: 1rem; opacity: 0.4; }
+.empty-title { font-family: var(--serif); font-size: 18px; color: var(--ink); margin-bottom: 0.4rem; }
+.empty-sub { font-size: 13px; }
+
+/* ── Modals ── */
+.backdrop {
+  display: none; position: fixed; inset: 0;
+  background: rgba(15,14,12,0.5);
+  z-index: 200; align-items: center; justify-content: center; padding: 1rem;
+  backdrop-filter: blur(2px);
+}
+.backdrop.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border-md);
+  padding: 1.75rem;
+  width: 100%; max-width: 420px;
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-title { font-family: var(--serif); font-size: 18px; margin-bottom: 1.25rem; }
+
+.form-group { margin-bottom: 1rem; }
+.form-label { font-size: 11.5px; color: var(--muted); display: block; margin-bottom: 4px; letter-spacing: 0.3px; text-transform: uppercase; }
+
+.form-input {
+  width: 100%; padding: 9px 12px;
+  background: var(--paper);
+  border: 0.5px solid var(--border-md);
+  border-radius: var(--radius-sm);
+  color: var(--ink); font-family: var(--sans); font-size: 13.5px;
+  outline: none; transition: border-color 0.12s;
+}
+.form-input:focus { border-color: var(--accent); }
+
+.emoji-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
+.emoji-btn {
+  width: 34px; height: 34px; border-radius: 7px;
+  border: 0.5px solid var(--border);
+  background: var(--paper); cursor: pointer; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.1s;
+}
+.emoji-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+.emoji-btn.sel { border-color: var(--accent); background: var(--accent-light); }
+
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.5rem; }
+
+.btn { display: inline-flex; align-items: center; gap: 5px; padding: 8px 16px; border-radius: var(--radius-sm); font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--border-md); background: var(--paper); color: var(--ink); transition: all 0.12s; }
+.btn:hover { background: var(--border); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+.btn-danger { background: #fdf0ef; color: #c0392b; border-color: #f5c6c6; }
+.btn-danger:hover { opacity: 0.85; }
+
+/* Mobile */
+@media (max-width: 600px) {
+  .sidebar { width: 56px; }
+  .col-name, .col-count, .logo-text, .sidebar-section-label, .btn-new-col span { display: none; }
+  .main { padding: 1rem; }
+  .logo-area { justify-content: center; padding: 1rem 0.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo-area">
+      <!-- Logo SVG -->
+      <svg class="logo-mark" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="9" fill="#c8602a"/>
+        <path d="M11 18 C11 14.5 13.5 12 17 12 L19 12" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+        <path d="M25 18 C25 21.5 22.5 24 19 24 L17 24" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+        <path d="M15 18 L21 18" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="27" cy="10" r="3.5" fill="#f7f5f0" opacity="0.9"/>
+        <path d="M26 10 L27.5 11.5 L30 8.5" stroke="#c8602a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="logo-text">
+        <div class="logo-name">LinkSaver</div>
+        <div class="logo-tagline">Your links, organised</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section-label">Collections</div>
+    <div class="collection-list" id="collectionList"></div>
+
+    <div class="sidebar-footer">
+      <button class="btn-new-col" onclick="openNewColModal()">
+        <span style="font-size:15px;">＋</span><span>New collection</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="main-header">
+      <div class="main-title-wrap">
+        <div class="main-icon" id="mainIcon"></div>
+        <h1 class="main-title" id="mainTitle">All links</h1>
+        <button class="rename-btn" id="renameBtn" style="display:none" onclick="openRenameModal()">✏️ rename</button>
+      </div>
+      <button class="btn-add" onclick="openAddModal()">＋ Add link</button>
+    </div>
+
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="Search your links…" oninput="renderLinks()" />
+    </div>
+
+    <div class="links-grid" id="linksGrid"></div>
+  </main>
+</div>
+
+<!-- Link modal -->
+<div class="backdrop" id="linkModal">
+  <div class="modal">
+    <div class="modal-title" id="linkModalTitle">Add a link</div>
+    <div class="form-group">
+      <label class="form-label">URL *</label>
+      <input class="form-input" id="fUrl" type="url" placeholder="https://" oninput="hintTitle()" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input class="form-input" id="fTitle" type="text" placeholder="Give it a name" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note</label>
+      <input class="form-input" id="fNote" type="text" placeholder="Optional note" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Collection</label>
+      <select class="form-input" id="fCollection"></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="close_('linkModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLink()">Save link</button>
+    </div>
+  </div>
+</div>
+
+<!-- Collection modal -->
+<div class="backdrop" id="colModal">
+  <div class="modal">
+    <div class="modal-title" id="colModalTitle">New collection</div>
+    <div class="form-group">
+      <label class="form-label">Name *</label>
+      <input class="form-input" id="cName" type="text" placeholder="e.g. Reading, GitHub, Design…" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Icon</label>
+      <div class="emoji-grid" id="emojiGrid"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="close_('colModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCol()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete modal -->
+<div class="backdrop" id="delModal">
+  <div class="modal">
+    <div class="modal-title">Delete this link?</div>
+    <p style="font-size:13.5px;color:var(--muted);margin-bottom:1.25rem">This action cannot be undone.</p>
+    <div class="modal-footer">
+      <button class="btn" onclick="close_('delModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDel()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const EMOJIS = ['📚','🐙','💻','🎨','🎬','🎵','🌐','📰','🛠️','🔬','💡','⭐','🏷️','📦','🗂️','🎯','🧪','🚀','📝','🌱','🎓','🤖','🏠','✈️','💰'];
+
+let S = { collections: [], links: [], active: null };
+let editId = null, delId = null, selEmoji = EMOJIS[0], isRename = false;
+
+function uid() { return Math.random().toString(36).slice(2,9) + Date.now().toString(36); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function domain(u) { try { return new URL(u).hostname.replace('www.',''); } catch { return u; } }
+function favicon(u) { try { return `https://www.google.com/s2/favicons?sz=64&domain_url=${new URL(u).origin}`; } catch { return ''; } }
+
+function persist() { localStorage.setItem('linksaver_v1', JSON.stringify(S)); }
+function loadData() {
+  try { const r = localStorage.getItem('linksaver_v1'); if (r) S = JSON.parse(r); } catch {}
+  if (!S.collections) S.collections = [];
+  if (!S.links) S.links = [];
+  if (S.active === undefined) S.active = null;
+  if (!S.collections.length) {
+    S.collections = [
+      { id: uid(), name: 'GitHub', icon: '🐙' },
+      { id: uid(), name: 'Reading', icon: '📚' },
+    ];
+    persist();
+  }
+}
+
+function open_(id) { document.getElementById(id).classList.add('open'); }
+function close_(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.backdrop').forEach(b => b.addEventListener('click', e => { if (e.target === b) b.classList.remove('open'); }));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') ['linkModal','colModal','delModal'].forEach(close_);
+  if ((e.metaKey||e.ctrlKey) && e.key==='k') { e.preventDefault(); document.getElementById('searchInput').focus(); }
+});
+
+// Sidebar
+function renderSidebar() {
+  const el = document.getElementById('collectionList');
+  el.innerHTML = '';
+  el.appendChild(makeColBtn(null,'🔗','All links', S.links.length));
+  S.collections.forEach(c => {
+    el.appendChild(makeColBtn(c.id, c.icon, c.name, S.links.filter(l=>l.col===c.id).length));
+  });
+}
+
+function makeColBtn(id, icon, name, count) {
+  const b = document.createElement('button');
+  b.className = 'collection-btn' + (S.active===id ? ' active' : '');
+  b.onclick = () => { S.active = id; render(); };
+  b.innerHTML = `<span class="col-icon">${icon}</span><span class="col-name">${esc(name)}</span><span class="col-count">${count}</span>`;
+  return b;
+}
+
+// Main
+function renderLinks() {
+  const grid = document.getElementById('linksGrid');
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let links = [...S.links];
+  let title = 'All links', icon = '🔗';
+
+  if (S.active) {
+    const c = S.collections.find(x=>x.id===S.active);
+    if (c) { title = c.name; icon = c.icon; }
+    links = links.filter(l=>l.col===S.active);
+    document.getElementById('renameBtn').style.display='';
+  } else {
+    document.getElementById('renameBtn').style.display='none';
+  }
+
+  if (q) links = links.filter(l => (l.title+l.url+l.note).toLowerCase().includes(q));
+
+  document.getElementById('mainTitle').textContent = title;
+  const mi = document.getElementById('mainIcon');
+  mi.textContent = icon;
+  mi.style.background = 'var(--accent-light)';
+
+  if (!links.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">${icon}</div><div class="empty-title">${q?'No results found':'Nothing saved yet'}</div><div class="empty-sub">${q?'Try a different search term':'Hit "+ Add link" to start saving'}</div></div>`;
+    return;
+  }
+
+  grid.innerHTML = '';
+  links.forEach(lk => {
+    const d = document.createElement('div');
+    d.className = 'link-card';
+    const fav = favicon(lk.url);
+    d.innerHTML = `
+      <div class="card-top">
+        <div class="favicon-wrap">${fav ? `<img src="${fav}" onerror="this.parentNode.innerHTML='🔗'" alt="">` : '🔗'}</div>
+        <div class="card-title">${esc(lk.title || domain(lk.url))}</div>
+      </div>
+      <span class="card-domain">${esc(domain(lk.url))}</span>
+      ${lk.note ? `<div class="card-note">${esc(lk.note)}</div>` : ''}
+      <div class="card-footer">
+        <button class="icon-btn" onclick="openEdit('${lk.id}')" title="Edit">✏️</button>
+        <button class="icon-btn del" onclick="promptDel('${lk.id}')" title="Delete">🗑</button>
+        <a class="open-btn" href="${esc(lk.url)}" target="_blank" rel="noopener">Open ↗</a>
+      </div>`;
+    grid.appendChild(d);
+  });
+}
+
+function render() { renderSidebar(); renderLinks(); }
+
+// Add / edit link
+function openAddModal() {
+  editId = null;
+  document.getElementById('linkModalTitle').textContent = 'Add a link';
+  document.getElementById('fUrl').value = '';
+  document.getElementById('fTitle').value = '';
+  document.getElementById('fNote').value = '';
+  fillColSelect();
+  open_('linkModal');
+  setTimeout(() => document.getElementById('fUrl').focus(), 60);
+}
+
+function openEdit(id) {
+  editId = id;
+  const lk = S.links.find(l=>l.id===id);
+  if (!lk) return;
+  document.getElementById('linkModalTitle').textContent = 'Edit link';
+  document.getElementById('fUrl').value = lk.url;
+  document.getElementById('fTitle').value = lk.title||'';
+  document.getElementById('fNote').value = lk.note||'';
+  fillColSelect(lk.col);
+  open_('linkModal');
+}
+
+function fillColSelect(sel) {
+  const s = document.getElementById('fCollection');
+  s.innerHTML = S.collections.map(c => `<option value="${c.id}" ${c.id===(sel||S.active)?'selected':''}>${c.icon} ${esc(c.name)}</option>`).join('');
+}
+
+let hintT;
+function hintTitle() {
+  clearTimeout(hintT);
+  hintT = setTimeout(() => {
+    const u = document.getElementById('fUrl').value.trim();
+    const t = document.getElementById('fTitle');
+    if (u && !t.value) try { t.placeholder = domain(u); } catch {}
+  }, 300);
+}
+
+function saveLink() {
+  const url = document.getElementById('fUrl').value.trim();
+  if (!url) { document.getElementById('fUrl').focus(); return; }
+  const title = document.getElementById('fTitle').value.trim();
+  const note = document.getElementById('fNote').value.trim();
+  const col = document.getElementById('fCollection').value;
+  if (editId) {
+    const lk = S.links.find(l=>l.id===editId);
+    if (lk) Object.assign(lk, { url, title, note, col });
+  } else {
+    S.links.unshift({ id: uid(), url, title, note, col, ts: Date.now() });
+  }
+  persist(); close_('linkModal'); render();
+}
+
+// Delete
+function promptDel(id) { delId = id; open_('delModal'); }
+function confirmDel() { S.links = S.links.filter(l=>l.id!==delId); persist(); close_('delModal'); render(); }
+
+// Collections
+function buildEmojiGrid() {
+  document.getElementById('emojiGrid').innerHTML = EMOJIS.map(e =>
+    `<button type="button" class="emoji-btn ${e===selEmoji?'sel':''}" onclick="pickEmoji('${e}')">${e}</button>`
+  ).join('');
+}
+function pickEmoji(e) { selEmoji=e; document.querySelectorAll('.emoji-btn').forEach(b=>b.classList.toggle('sel',b.textContent===e)); }
+
+function openNewColModal() {
+  isRename=false; selEmoji=EMOJIS[0];
+  document.getElementById('colModalTitle').textContent='New collection';
+  document.getElementById('cName').value='';
+  buildEmojiGrid(); open_('colModal');
+  setTimeout(()=>document.getElementById('cName').focus(),60);
+}
+
+function openRenameModal() {
+  isRename=true;
+  const c = S.collections.find(x=>x.id===S.active);
+  if (!c) return;
+  selEmoji=c.icon;
+  document.getElementById('colModalTitle').textContent='Rename collection';
+  document.getElementById('cName').value=c.name;
+  buildEmojiGrid(); open_('colModal');
+}
+
+function saveCol() {
+  const name = document.getElementById('cName').value.trim();
+  if (!name) { document.getElementById('cName').focus(); return; }
+  if (isRename && S.active) {
+    const c = S.collections.find(x=>x.id===S.active);
+    if (c) { c.name=name; c.icon=selEmoji; }
+  } else {
+    const c = { id: uid(), name, icon: selEmoji };
+    S.collections.push(c); S.active=c.id;
+  }
+  persist(); close_('colModal'); render();
+}
+
+loadData(); render();
+</script>
+</body>
+</html>
